@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HINENI · Dashboard Audiovisual 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hineni-blue: #2A1FC7;
+    --hineni-red: #FF3D2E;
+    --bg: #0D0B2B;
+    --bg2: #130F3A;
+    --bg3: #1A1550;
+    --border: rgba(255,255,255,0.08);
+    --text-dim: rgba(255,255,255,0.45);
+    --text-mid: rgba(255,255,255,0.75);
+    --green: #00E676;
+    --yellow: #FFD600;
+    --orange: #FF9800;
+    --r: 14px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Barlow',sans-serif; background:var(--bg); color:#fff; min-height:100vh; overflow-x:hidden; }
+
+  header {
+    background:linear-gradient(135deg,var(--hineni-blue) 0%,#1a0fa0 100%);
+    border-bottom:2px solid var(--hineni-red);
+    padding:0 32px; height:68px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:200;
+    box-shadow:0 4px 32px rgba(42,31,199,.5);
+  }
+  .logo-wrap { display:flex; align-items:center; gap:14px; }
+  .header-sub { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:4px; color:rgba(255,255,255,.5); text-transform:uppercase; }
+  .header-meta { display:flex; align-items:center; gap:16px; }
+  .filmmaker-chip { background:rgba(255,61,46,.15); border:1px solid rgba(255,61,46,.4); border-radius:20px; padding:6px 14px; font-size:12px; color:var(--hineni-red); font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+  .date-chip { font-size:12px; color:var(--text-dim); }
+
+  main { padding:24px 28px; max-width:1500px; margin:0 auto; }
+
+  .kpi-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:22px; }
+  .kpi-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; position:relative; overflow:hidden; transition:transform .2s,box-shadow .2s; }
+  .kpi-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.35); }
+  .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .kpi-card.blue::before  { background:var(--hineni-blue); }
+  .kpi-card.red::before   { background:var(--hineni-red); }
+  .kpi-card.green::before { background:var(--green); }
+  .kpi-card.yellow::before{ background:var(--yellow); }
+  .kpi-card.orange::before{ background:var(--orange); }
+  .kpi-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); font-weight:600; margin-bottom:6px; }
+  .kpi-value { font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:800; line-height:1; }
+  .kpi-value.blue  { color:#6B82FF; }
+  .kpi-value.red   { color:var(--hineni-red); }
+  .kpi-value.green { color:var(--green); }
+  .kpi-value.yellow{ color:var(--yellow); }
+  .kpi-value.orange{ color:var(--orange); }
+  .kpi-sub { font-size:11px; color:var(--text-dim); margin-top:4px; }
+
+  .quarter-nav { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .q-btn { padding:8px 20px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--bg2); color:var(--text-dim); transition:all .2s; letter-spacing:1px; text-transform:uppercase; }
+  .q-btn.active { background:var(--hineni-blue); color:#fff; border-color:var(--hineni-blue); box-shadow:0 2px 14px rgba(42,31,199,.4); }
+  .q-btn:hover:not(.active) { color:#fff; background:rgba(255,255,255,.06); }
+
+  .view-tabs { display:flex; gap:4px; margin-bottom:20px; background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:5px; width:fit-content; }
+  .v-tab { padding:7px 20px; border-radius:7px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:transparent; color:var(--text-dim); transition:all .2s; }
+  .v-tab.active { background:var(--hineni-blue); color:#fff; box-shadow:0 2px 12px rgba(42,31,199,.4); }
+  .v-tab:hover:not(.active) { color:#fff; background:rgba(255,255,255,.06); }
+
+  .toolbar { display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+  .toolbar-btn { padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--border); background:var(--bg2); color:var(--text-mid); transition:all .2s; display:flex; align-items:center; gap:6px; }
+  .toolbar-btn:hover { border-color:var(--hineni-blue); color:#fff; background:rgba(42,31,199,.2); }
+  .toolbar-btn.primary { background:var(--hineni-red); border-color:var(--hineni-red); color:#fff; }
+  .toolbar-btn.primary:hover { background:#e03325; }
+
+  .months-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .month-col { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+  .month-header { background:linear-gradient(135deg,var(--hineni-blue),#1a0fa0); padding:12px 18px; display:flex; align-items:center; justify-content:space-between; }
+  .month-name { font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+  .month-total { font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; color:rgba(255,255,255,.7); }
+  .month-body { padding:14px; display:flex; flex-direction:column; gap:10px; }
+
+  .brand-block { background:var(--bg3); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .brand-header { padding:9px 13px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+  .brand-name-wrap { display:flex; align-items:center; gap:7px; }
+  .brand-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .brand-name { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+  .brand-type-badge { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
+  .brand-body { padding:11px 13px; }
+
+  .campaign-list { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; }
+  .campaign-item { display:flex; align-items:flex-start; gap:6px; }
+  .campaign-num { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; color:var(--hineni-red); min-width:14px; padding-top:3px; flex-shrink:0; }
+  .camp-display { font-size:12px; color:var(--text-mid); line-height:1.4; flex:1; cursor:pointer; border-bottom:1px dashed transparent; transition:border-color .2s,color .2s; padding:1px 3px; border-radius:3px; word-break:break-word; }
+  .camp-display:hover { border-bottom-color:rgba(255,255,255,.3); color:#fff; background:rgba(255,255,255,.04); }
+  .camp-input { font-size:12px; color:#fff; background:rgba(255,255,255,.1); border:1px solid var(--hineni-blue); border-radius:4px; padding:2px 6px; flex:1; font-family:'Barlow',sans-serif; display:none; min-width:0; }
+  .camp-input:focus { outline:none; border-color:var(--yellow); }
+  .edit-hint { font-size:9px; color:var(--text-dim); opacity:0; transition:opacity .2s; margin-left:3px; padding-top:4px; flex-shrink:0; }
+  .campaign-item:hover .edit-hint { opacity:1; }
+
+  .payment-row { background:rgba(0,0,0,.25); border-radius:8px; padding:9px 11px; display:flex; flex-direction:column; gap:7px; }
+  .payment-meta { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+
+  .paydate-display { font-size:11px; color:var(--text-dim); cursor:pointer; border-bottom:1px dashed transparent; transition:all .2s; padding:1px 2px; }
+  .paydate-display:hover { color:#fff; border-bottom-color:rgba(255,255,255,.3); }
+  .paydate-input { font-size:11px; color:#fff; background:rgba(255,255,255,.1); border:1px solid var(--hineni-blue); border-radius:4px; padding:2px 7px; font-family:'Barlow',sans-serif; display:none; width:175px; }
+  .paydate-input:focus { outline:none; border-color:var(--yellow); }
+
+  .payment-amount-wrap { display:flex; align-items:center; gap:6px; }
+  .amount-display { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; cursor:pointer; border-bottom:1px dashed rgba(255,255,255,.2); transition:color .2s; }
+  .amount-display:hover { color:var(--yellow); }
+  .amount-input { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:800; background:rgba(255,255,255,.1); border:1px solid var(--hineni-blue); color:#fff; border-radius:5px; padding:2px 8px; width:90px; display:none; }
+  .amount-input:focus { outline:none; border-color:var(--yellow); }
+  .currency-label { font-size:10px; color:var(--text-dim); font-weight:600; letter-spacing:1px; }
+
+  .status-row { display:flex; align-items:center; gap:8px; }
+  .status-label { font-size:10px; color:var(--text-dim); font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+  .status-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:all .2s; border:1px solid transparent; user-select:none; }
+  .status-badge.cancelado { background:rgba(0,230,118,.12); border-color:rgba(0,230,118,.35); color:var(--green); }
+  .status-badge.pendiente  { background:rgba(255,214,0,.12);  border-color:rgba(255,214,0,.35);  color:var(--yellow); }
+  .status-badge.vencido    { background:rgba(255,61,46,.12);   border-color:rgba(255,61,46,.35);   color:var(--hineni-red); }
+  .status-badge .dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .status-badge:hover { transform:scale(1.05); }
+
+  .status-dropdown { position:fixed; background:#1f1a5a; border:1px solid var(--border); border-radius:8px; overflow:hidden; z-index:9999; min-width:140px; box-shadow:0 8px 24px rgba(0,0,0,.5); display:none; }
+  .status-dropdown.open { display:block; }
+  .status-option { padding:9px 14px; font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; transition:background .15s; text-transform:uppercase; letter-spacing:.5px; }
+  .status-option:hover { background:rgba(255,255,255,.08); }
+  .status-option.cancelado { color:var(--green); }
+  .status-option.pendiente  { color:var(--yellow); }
+  .status-option.vencido    { color:var(--hineni-red); }
+
+  .notes-section { margin-top:6px; }
+  .notes-btn { font-size:11px; color:var(--text-dim); background:none; border:none; cursor:pointer; text-decoration:underline dotted; padding:0; font-family:'Barlow',sans-serif; transition:color .2s; }
+  .notes-btn:hover { color:#fff; }
+  .notes-input { width:100%; margin-top:5px; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:6px; color:var(--text-mid); font-size:11px; font-family:'Barlow',sans-serif; padding:6px 9px; resize:none; display:none; }
+  .notes-input:focus { outline:none; border-color:var(--hineni-blue); }
+
+  .activity-panel { display:none; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:18px; margin-top:0; }
+  .activity-panel.visible { display:block; }
+  .activity-title { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; color:var(--text-mid); }
+  .activity-log { display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto; }
+  .activity-log::-webkit-scrollbar { width:4px; }
+  .activity-log::-webkit-scrollbar-thumb { background:var(--hineni-blue); border-radius:2px; }
+  .activity-entry { display:flex; gap:10px; font-size:12px; color:var(--text-mid); padding:7px 0; border-bottom:1px solid var(--border); }
+  .activity-time { color:var(--text-dim); min-width:130px; font-size:11px; flex-shrink:0; }
+  .activity-text { flex:1; line-height:1.5; }
+  .no-log { font-size:12px; color:var(--text-dim); text-align:center; padding:18px 0; font-style:italic; }
+
+  .summary-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .summary-table th { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:10px 14px; border-bottom:1px solid var(--border); font-weight:600; }
+  .summary-table td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:middle; }
+  .summary-table tr:hover td { background:rgba(255,255,255,.02); }
+  .progress-wrap { background:rgba(255,255,255,.08); border-radius:10px; height:6px; overflow:hidden; width:90px; }
+  .progress-fill { height:100%; border-radius:10px; transition:width .6s ease; }
+
+  .section-label { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--text-dim); padding:4px 0 12px; border-bottom:1px solid var(--border); margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
+
+  .toast { position:fixed; bottom:24px; right:24px; background:var(--hineni-blue); color:#fff; padding:11px 18px; border-radius:8px; font-size:13px; font-weight:600; box-shadow:0 8px 24px rgba(42,31,199,.5); transform:translateY(80px); opacity:0; transition:all .3s cubic-bezier(.34,1.56,.64,1); z-index:9998; display:flex; align-items:center; gap:8px; border-left:3px solid var(--hineni-red); }
+  .toast.show { transform:translateY(0); opacity:1; }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  @media(max-width:1100px){ .months-grid{grid-template-columns:repeat(2,1fr) !important;} .kpi-strip{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:700px){ .months-grid{grid-template-columns:1fr !important;} .kpi-strip{grid-template-columns:repeat(2,1fr);} main{padding:14px;} header{padding:0 14px;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <svg width="176" height="42" viewBox="0 0 176 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="3.5" width="8.5" height="8.5" rx="1.5" fill="#FF3D2E"/>
+      <rect x="2" y="30" width="8.5" height="8.5" rx="1.5" fill="#FF3D2E"/>
+      <rect x="5" y="18.5" width="6" height="6" rx="1" fill="#FF3D2E"/>
+      <line x1="10.5" y1="8" x2="16.5" y2="21.5" stroke="#FF3D2E" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="10.5" y1="34.5" x2="16.5" y2="21.5" stroke="#FF3D2E" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M15.5 4.5 L15.5 37.5 Q37 37.5 37 21 Q37 4.5 15.5 4.5 Z" fill="#FF3D2E"/>
+      <path d="M20.5 10.5 L20.5 31.5 Q31 31.5 31 21 Q31 10.5 20.5 10.5 Z" fill="#2A1FC7"/>
+      <text x="44" y="30" font-family="'Barlow Condensed',Arial Black,sans-serif" font-weight="800" font-size="27" letter-spacing="2.5" fill="white">HINENI</text>
+    </svg>
+    <div class="header-sub">Dashboard Audiovisual · Filmmaker Tracking 2026</div>
+  </div>
+  <div class="header-meta">
+    <div class="filmmaker-chip">🎬 Ana Lucía Rosillo</div>
+    <div class="date-chip" id="currentDate"></div>
+  </div>
+</header>
+
+<main>
+  <div class="kpi-strip" id="kpiStrip"></div>
+
+  <div class="toolbar">
+    <button class="toolbar-btn" onclick="toggleActivity()">📋 Bitácora de cambios</button>
+    <button class="toolbar-btn" onclick="exportSummary()">⬇️ Exportar resumen</button>
+    <button class="toolbar-btn primary" onclick="recalcKPIs()">↻ Actualizar KPIs</button>
+  </div>
+
+  <div class="view-tabs">
+    <button class="v-tab active" onclick="switchView('timeline',this)">Vista por mes</button>
+    <button class="v-tab" onclick="switchView('summary',this)">Resumen ejecutivo</button>
+  </div>
+
+  <div class="tab-content active" id="tab-timeline">
+    <div class="quarter-nav" id="quarterNav"></div>
+    <div class="section-label">
+      <span>Distribución mensual de piezas audiovisuales</span>
+      <span id="sectionPeriod">Q2 · ABR–JUN 2026</span>
+    </div>
+    <div class="months-grid" id="monthsGrid"></div>
+  </div>
+
+  <div class="tab-content" id="tab-summary">
+    <div class="section-label">Resumen ejecutivo por marca · Abril–Diciembre 2026</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">
+      <table class="summary-table" id="summaryTable"></table>
+    </div>
+  </div>
+
+  <div id="activityPanel" class="activity-panel" style="margin-top:16px;">
+    <div class="activity-title">📋 Bitácora de cambios</div>
+    <div class="activity-log" id="activityLog"><div class="no-log">Sin cambios registrados aún.</div></div>
+  </div>
+</main>
+
+<div id="statusDropdown" class="status-dropdown">
+  <div class="status-option cancelado" onclick="selectStatus('CANCELADO')"><span class="dot" style="background:var(--green)"></span>CANCELADO</div>
+  <div class="status-option pendiente"  onclick="selectStatus('PENDIENTE')"><span class="dot" style="background:var(--yellow)"></span>PENDIENTE</div>
+  <div class="status-option vencido"    onclick="selectStatus('VENCIDO')"><span class="dot" style="background:var(--hineni-red)"></span>VENCIDO</div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg">Cambio guardado</span></div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA MODEL — Abril a Diciembre 2026
+// ══════════════════════════════════════════════
+const DATA = {
+  filmmaker: "Ana Lucía Rosillo",
+  months: [
+    {
+      id:"abril", name:"ABRIL", year:2026, quarter:"Q2",
+      brands:[
+        { id:"jalara_abril", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°9: TÁCTICO AVENTURA | 2 NOCHES + DEPORTE","CAMPAÑA ADS N°10: TÁCTICO 20% DESCUENTO DOM A JUE","CAMPAÑA ADS N°11: CAMPAÑA PRINCIPAL DÍA DE LA MADRE","CAMPAÑA ADS N°12/13: TÁCTICO PARA GRUPOS Y FAMILIAS"],
+          payDate:"10 DE ABRIL 2026", amount:500, status:"CANCELADO", notes:"" },
+        { id:"hineni_abril", brand:"HINENI", color:"#FF3D2E", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA 1: ESTRUCTURA COMERCIAL DESDE JALARA","CAMPAÑA 2: ESTRUCTURA COMERCIAL DESDE MONTESIERPE"],
+          payDate:"10 DE MAYO 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"monte_abril", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°1: ¿DÓNDE NOS ENCONTRAMOS?","CAMPAÑA ADS N°2: ¿QUIÉNES SOMOS?"],
+          payDate:"10 DE MAYO 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"mayo", name:"MAYO", year:2026, quarter:"Q2",
+      brands:[
+        { id:"jalara_mayo", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°13","CAMPAÑA ADS N°14","CAMPAÑA ADS N°15","CAMPAÑA ADS N°16"],
+          payDate:"10 DE MAYO 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"hineni_mayo", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 3:","CAMPAÑA 4:"],
+          payDate:"10 DE JUNIO 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_mayo", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°3: ¿DÓNDE NOS ENCONTRAMOS?","CAMPAÑA ADS N°4: ¿QUIÉNES SOMOS?"],
+          payDate:"10 DE JUNIO 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"junio", name:"JUNIO", year:2026, quarter:"Q2",
+      brands:[
+        { id:"jalara_junio", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°17","CAMPAÑA ADS N°18","CAMPAÑA ADS N°19","CAMPAÑA ADS N°20"],
+          payDate:"10 DE JUNIO 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"hineni_junio", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 5:","CAMPAÑA 6:"],
+          payDate:"10 DE JULIO 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_junio", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°5:","CAMPAÑA ADS N°6:"],
+          payDate:"10 DE JULIO 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"julio", name:"JULIO", year:2026, quarter:"Q3",
+      brands:[
+        { id:"jalara_julio", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°21:","CAMPAÑA ADS N°22:","CAMPAÑA ADS N°23:","CAMPAÑA ADS N°24:"],
+          payDate:"10 DE JULIO 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"hineni_julio", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 7:","CAMPAÑA 8:"],
+          payDate:"10 DE AGOSTO 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_julio", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°7:","CAMPAÑA ADS N°8:"],
+          payDate:"10 DE AGOSTO 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"agosto", name:"AGOSTO", year:2026, quarter:"Q3",
+      brands:[
+        { id:"jalara_agosto", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°25:","CAMPAÑA ADS N°26:","CAMPAÑA ADS N°27:","CAMPAÑA ADS N°28:"],
+          payDate:"10 DE AGOSTO 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"hineni_agosto", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 9:","CAMPAÑA 10:"],
+          payDate:"10 DE SEPTIEMBRE 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_agosto", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°9:","CAMPAÑA ADS N°10:"],
+          payDate:"10 DE SEPTIEMBRE 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"septiembre", name:"SEPTIEMBRE", year:2026, quarter:"Q3",
+      brands:[
+        { id:"jalara_septiembre", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°29:","CAMPAÑA ADS N°30:","CAMPAÑA ADS N°31:","CAMPAÑA ADS N°32:"],
+          payDate:"10 DE SEPTIEMBRE 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"hineni_septiembre", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 11:","CAMPAÑA 12:"],
+          payDate:"10 DE OCTUBRE 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_septiembre", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°11:","CAMPAÑA ADS N°12:"],
+          payDate:"10 DE OCTUBRE 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"octubre", name:"OCTUBRE", year:2026, quarter:"Q4",
+      brands:[
+        { id:"jalara_octubre", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°33:","CAMPAÑA ADS N°34:","CAMPAÑA ADS N°35:","CAMPAÑA ADS N°36:"],
+          payDate:"10 DE OCTUBRE 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"hineni_octubre", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 13:","CAMPAÑA 14:"],
+          payDate:"10 DE NOVIEMBRE 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_octubre", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°13:","CAMPAÑA ADS N°14:"],
+          payDate:"10 DE NOVIEMBRE 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"noviembre", name:"NOVIEMBRE", year:2026, quarter:"Q4",
+      brands:[
+        { id:"jalara_noviembre", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°37:","CAMPAÑA ADS N°38:","CAMPAÑA ADS N°39:","CAMPAÑA ADS N°40:"],
+          payDate:"10 DE NOVIEMBRE 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"hineni_noviembre", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 15:","CAMPAÑA 16:"],
+          payDate:"10 DE DICIEMBRE 2026", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_noviembre", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°15:","CAMPAÑA ADS N°16:"],
+          payDate:"10 DE DICIEMBRE 2026", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    },
+    {
+      id:"diciembre", name:"DICIEMBRE", year:2026, quarter:"Q4",
+      brands:[
+        { id:"jalara_diciembre", brand:"JALARA LUNAHUANÁ HOTEL", color:"#6B82FF", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°41:","CAMPAÑA ADS N°42:","CAMPAÑA ADS N°43:","CAMPAÑA ADS N°44:"],
+          payDate:"10 DE DICIEMBRE 2026", amount:500, status:"PENDIENTE", notes:"" },
+        { id:"hineni_diciembre", brand:"HINENI", color:"#FF3D2E", service:"EDICIÓN",
+          campaigns:["CAMPAÑA 17:","CAMPAÑA 18:"],
+          payDate:"10 DE ENERO 2027", amount:400, status:"PENDIENTE", notes:"" },
+        { id:"monte_diciembre", brand:"MONTESIERPE", color:"#00E676", service:"PRODUCCIÓN Y EDICIÓN",
+          campaigns:["CAMPAÑA ADS N°17:","CAMPAÑA ADS N°18:"],
+          payDate:"10 DE ENERO 2027", amount:500, status:"PENDIENTE", notes:"" }
+      ]
+    }
+  ]
+};
+
+// ── STATE ──
+let activityLog = [];
+let activeDropdownId = null;
+let activeQuarter = "Q2";
+
+const QUARTERS = {
+  Q2:  { label:"Q2 · ABR–JUN", months:["abril","mayo","junio"] },
+  Q3:  { label:"Q3 · JUL–SEP", months:["julio","agosto","septiembre"] },
+  Q4:  { label:"Q4 · OCT–DIC", months:["octubre","noviembre","diciembre"] },
+  ALL: { label:"Año completo", months:["abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"] }
+};
+
+// ── UTILS ──
+function getBrandById(id) {
+  for (const m of DATA.months) for (const b of m.brands) if (b.id===id) return b;
+  return null;
+}
+function getMonthIdFromBrandId(brandId) { return brandId.split('_').slice(1).join('_'); }
+function formatDate(d) {
+  return d.toLocaleString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function statusClass(s) { return s ? s.toLowerCase() : 'pendiente'; }
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function logActivity(msg) {
+  activityLog.unshift({time:new Date(),msg});
+  renderActivityLog();
+}
+function renderActivityLog() {
+  const el=document.getElementById('activityLog');
+  if(!activityLog.length){ el.innerHTML='<div class="no-log">Sin cambios registrados aún.</div>'; return; }
+  el.innerHTML=activityLog.map(e=>`
+    <div class="activity-entry">
+      <div class="activity-time">${formatDate(e.time)}</div>
+      <div class="activity-text">${e.msg}</div>
+    </div>`).join('');
+}
+
+// ── KPIs ──
+function recalcKPIs() {
+  let total=0,pagado=0,pendiente=0,vencido=0,piezas=0;
+  DATA.months.forEach(m=>m.brands.forEach(b=>{
+    total+=b.amount; piezas+=b.campaigns.length;
+    if(b.status==='CANCELADO') pagado+=b.amount;
+    else if(b.status==='VENCIDO') vencido+=b.amount;
+    else pendiente+=b.amount;
+  }));
+  const kpis=[
+    {label:'Total Anual',    value:`S/ ${total.toLocaleString()}`,     sub:'Abr–Dic 2026',   cls:'blue'},
+    {label:'Pagado',         value:`S/ ${pagado.toLocaleString()}`,    sub:'Cancelado',      cls:'green'},
+    {label:'Por Cobrar',     value:`S/ ${pendiente.toLocaleString()}`, sub:'Pendiente',      cls:'yellow'},
+    {label:'Vencido',        value:`S/ ${vencido.toLocaleString()}`,   sub:'Requiere acción',cls:'red'},
+    {label:'Piezas Totales', value:piezas,                             sub:'Reels producidos',cls:'orange'}
+  ];
+  document.getElementById('kpiStrip').innerHTML=kpis.map(k=>`
+    <div class="kpi-card ${k.cls}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.cls}">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+// ── QUARTER NAV ──
+function buildQuarterNav() {
+  document.getElementById('quarterNav').innerHTML=Object.entries(QUARTERS).map(([key,q])=>
+    `<button class="q-btn ${key===activeQuarter?'active':''}" onclick="setQuarter('${key}')">${q.label}</button>`
+  ).join('');
+}
+function setQuarter(q) {
+  activeQuarter=q;
+  buildQuarterNav();
+  renderMonths();
+  document.getElementById('sectionPeriod').textContent=QUARTERS[q].label+' 2026';
+}
+
+// ── RENDER MONTHS ──
+function renderMonths() {
+  const qMonths=QUARTERS[activeQuarter].months;
+  const months=DATA.months.filter(m=>qMonths.includes(m.id));
+  const grid=document.getElementById('monthsGrid');
+  const cols=months.length>=3?3:months.length;
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
+  grid.innerHTML=months.map(month=>{
+    const total=month.brands.reduce((a,b)=>a+b.amount,0);
+    return `
+    <div class="month-col">
+      <div class="month-header">
+        <div class="month-name">${month.name} <span style="font-size:13px;opacity:.65">${month.year}</span></div>
+        <div class="month-total" id="mTotal_${month.id}">S/ ${total.toLocaleString()}</div>
+      </div>
+      <div class="month-body">${month.brands.map(renderBrandBlock).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function refreshMonthTotal(monthId) {
+  const m=DATA.months.find(x=>x.id===monthId); if(!m) return;
+  const el=document.getElementById(`mTotal_${monthId}`);
+  if(el) el.textContent=`S/ ${m.brands.reduce((a,b)=>a+b.amount,0).toLocaleString()}`;
+}
+
+function renderBrandBlock(b) {
+  const sClass=statusClass(b.status);
+  const isProduccion=b.service.toUpperCase().includes('PRODUCCIÓN');
+  const svcColor=isProduccion?'#FF3D2E':'#00E676';
+
+  const camps=b.campaigns.map((c,i)=>`
+    <div class="campaign-item">
+      <div class="campaign-num">${i+1}</div>
+      <span class="camp-display" id="cD_${b.id}_${i}" onclick="editCamp('${b.id}',${i})" title="✏️ Editar campaña">${c||'<em style="opacity:.35">Por definir</em>'}</span>
+      <input class="camp-input" id="cI_${b.id}_${i}" type="text" value="${c.replace(/"/g,'&quot;')}"
+        onblur="saveCamp('${b.id}',${i})"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();saveCamp('${b.id}',${i});}if(event.key==='Escape')cancelCamp('${b.id}',${i});">
+      <span class="edit-hint">✏️</span>
+    </div>`).join('');
+
+  return `
+  <div class="brand-block" id="block_${b.id}">
+    <div class="brand-header">
+      <div class="brand-name-wrap">
+        <div class="brand-dot" style="background:${b.color}"></div>
+        <div class="brand-name" style="color:${b.color}">${b.brand}</div>
+      </div>
+      <div class="brand-type-badge" style="background:${svcColor}22;color:${svcColor};border:1px solid ${svcColor}55">${b.service}</div>
+    </div>
+    <div class="brand-body">
+      <div class="campaign-list">${camps}</div>
+      <div class="payment-row">
+        <div class="payment-meta">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+            <span style="font-size:11px;color:var(--text-dim);">📅</span>
+            <span class="paydate-display" id="pdD_${b.id}" onclick="editPayDate('${b.id}')" title="✏️ Editar fecha de pago">${b.payDate}</span>
+            <input class="paydate-input" id="pdI_${b.id}" type="text" value="${b.payDate}"
+              onblur="savePayDate('${b.id}')"
+              onkeydown="if(event.key==='Enter')savePayDate('${b.id}');if(event.key==='Escape')cancelPayDate('${b.id}');">
+          </div>
+          <div class="payment-amount-wrap">
+            <span class="currency-label">S/</span>
+            <span class="amount-display" id="aD_${b.id}" onclick="editAmount('${b.id}')" title="✏️ Editar monto">${b.amount.toLocaleString()}</span>
+            <input class="amount-input" id="aI_${b.id}" type="number" value="${b.amount}"
+              onblur="saveAmount('${b.id}')"
+              onkeydown="if(event.key==='Enter')saveAmount('${b.id}');if(event.key==='Escape')cancelAmount('${b.id}');">
+          </div>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Estado:</span>
+          <div style="position:relative">
+            <div class="status-badge ${sClass}" id="sB_${b.id}" onclick="toggleDropdown('${b.id}',event)">
+              <span class="dot"></span>${b.status||'PENDIENTE'}
+            </div>
+          </div>
+        </div>
+        <div class="notes-section">
+          <button class="notes-btn" onclick="toggleNotes('${b.id}')">+ Nota interna</button>
+          <textarea class="notes-input" id="nI_${b.id}" rows="2" placeholder="Notas internas..." onblur="saveNote('${b.id}')">${b.notes}</textarea>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── CAMPAIGN EDIT ──
+function editCamp(id,i) {
+  document.getElementById(`cD_${id}_${i}`).style.display='none';
+  const inp=document.getElementById(`cI_${id}_${i}`);
+  inp.style.display='inline-block'; inp.focus(); inp.select();
+}
+function saveCamp(id,i) {
+  const b=getBrandById(id);
+  const inp=document.getElementById(`cI_${id}_${i}`);
+  const disp=document.getElementById(`cD_${id}_${i}`);
+  const oldVal=b.campaigns[i];
+  const newVal=inp.value.trim()||oldVal;
+  if(newVal!==oldVal){
+    b.campaigns[i]=newVal;
+    logActivity(`Campaña actualizada — ${b.brand} (${getMonthIdFromBrandId(id)}) #${i+1}: "${oldVal}" → "${newVal}"`);
+    showToast('Campaña actualizada ✓');
+  }
+  disp.textContent=newVal; disp.style.display=''; inp.style.display='none';
+}
+function cancelCamp(id,i) {
+  const b=getBrandById(id);
+  document.getElementById(`cI_${id}_${i}`).value=b.campaigns[i];
+  document.getElementById(`cD_${id}_${i}`).style.display=''; 
+  document.getElementById(`cI_${id}_${i}`).style.display='none';
+}
+
+// ── PAY DATE EDIT ──
+function editPayDate(id) {
+  document.getElementById(`pdD_${id}`).style.display='none';
+  const inp=document.getElementById(`pdI_${id}`);
+  inp.style.display='inline-block'; inp.focus(); inp.select();
+}
+function savePayDate(id) {
+  const b=getBrandById(id);
+  const inp=document.getElementById(`pdI_${id}`);
+  const disp=document.getElementById(`pdD_${id}`);
+  const newVal=inp.value.trim().toUpperCase()||b.payDate;
+  const oldVal=b.payDate;
+  if(newVal!==oldVal){
+    b.payDate=newVal;
+    logActivity(`Fecha de pago actualizada — ${b.brand} (${getMonthIdFromBrandId(id)}): ${oldVal} → ${newVal}`);
+    showToast('Fecha de pago actualizada ✓');
+  }
+  disp.textContent=newVal; disp.style.display=''; inp.style.display='none';
+}
+function cancelPayDate(id) {
+  const b=getBrandById(id);
+  document.getElementById(`pdI_${id}`).value=b.payDate;
+  document.getElementById(`pdD_${id}`).style.display=''; 
+  document.getElementById(`pdI_${id}`).style.display='none';
+}
+
+// ── AMOUNT EDIT ──
+function editAmount(id) {
+  document.getElementById(`aD_${id}`).style.display='none';
+  const inp=document.getElementById(`aI_${id}`);
+  inp.style.display='inline-block'; inp.focus(); inp.select();
+}
+function saveAmount(id) {
+  const b=getBrandById(id);
+  const inp=document.getElementById(`aI_${id}`);
+  const disp=document.getElementById(`aD_${id}`);
+  const newVal=parseInt(inp.value)||0;
+  const oldVal=b.amount;
+  if(newVal!==oldVal){
+    b.amount=newVal;
+    logActivity(`Monto actualizado — ${b.brand} (${getMonthIdFromBrandId(id)}): S/ ${oldVal} → S/ ${newVal}`);
+    showToast(`Monto actualizado: S/ ${newVal.toLocaleString()} ✓`);
+    recalcKPIs(); updateSummaryTable();
+    refreshMonthTotal(getMonthIdFromBrandId(id));
+  }
+  disp.textContent=newVal.toLocaleString(); disp.style.display=''; inp.style.display='none';
+}
+function cancelAmount(id) {
+  const b=getBrandById(id);
+  document.getElementById(`aI_${id}`).value=b.amount;
+  document.getElementById(`aD_${id}`).style.display=''; 
+  document.getElementById(`aI_${id}`).style.display='none';
+}
+
+// ── STATUS DROPDOWN ──
+function toggleDropdown(brandId,e) {
+  e.stopPropagation();
+  const dd=document.getElementById('statusDropdown');
+  const badge=document.getElementById(`sB_${brandId}`);
+  const rect=badge.getBoundingClientRect();
+  if(activeDropdownId===brandId&&dd.classList.contains('open')){ dd.classList.remove('open'); activeDropdownId=null; return; }
+  activeDropdownId=brandId;
+  dd.style.top=(rect.bottom+4)+'px'; dd.style.left=rect.left+'px';
+  dd.classList.add('open');
+}
+function selectStatus(newStatus) {
+  const dd=document.getElementById('statusDropdown'); if(!activeDropdownId) return;
+  const b=getBrandById(activeDropdownId);
+  const oldStatus=b.status; b.status=newStatus;
+  dd.classList.remove('open');
+  const badge=document.getElementById(`sB_${activeDropdownId}`);
+  if(badge){ badge.className=`status-badge ${newStatus.toLowerCase()}`; badge.innerHTML=`<span class="dot"></span>${newStatus}`; }
+  logActivity(`Estado actualizado — ${b.brand} (${getMonthIdFromBrandId(activeDropdownId)}): ${oldStatus} → ${newStatus}`);
+  showToast(`Estado: ${newStatus}`);
+  recalcKPIs(); updateSummaryTable();
+  activeDropdownId=null;
+}
+document.addEventListener('click',e=>{
+  const dd=document.getElementById('statusDropdown');
+  if(!e.target.closest('#statusDropdown')&&!e.target.closest('.status-badge')){ dd.classList.remove('open'); activeDropdownId=null; }
+});
+
+// ── NOTES ──
+function toggleNotes(id) {
+  const n=document.getElementById(`nI_${id}`);
+  n.style.display=n.style.display==='block'?'none':'block';
+  if(n.style.display==='block') n.focus();
+}
+function saveNote(id) {
+  const b=getBrandById(id); const n=document.getElementById(`nI_${id}`);
+  if(b.notes!==n.value){ b.notes=n.value; logActivity(`Nota guardada — ${b.brand} (${getMonthIdFromBrandId(id)})`); showToast('Nota guardada ✓'); }
+}
+
+// ── SUMMARY TABLE ──
+function updateSummaryTable() {
+  const table=document.getElementById('summaryTable'); if(!table) return;
+  const brands={};
+  DATA.months.forEach(m=>m.brands.forEach(b=>{
+    if(!brands[b.brand]) brands[b.brand]={brand:b.brand,color:b.color,total:0,pagado:0,piezas:0};
+    brands[b.brand].total+=b.amount; brands[b.brand].piezas+=b.campaigns.length;
+    if(b.status==='CANCELADO') brands[b.brand].pagado+=b.amount;
+  }));
+  const rows=Object.values(brands).map(br=>{
+    const pct=br.total>0?Math.round((br.pagado/br.total)*100):0;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div style="width:9px;height:9px;border-radius:50%;background:${br.color};flex-shrink:0"></div><strong>${br.brand}</strong></div></td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700">S/ ${br.total.toLocaleString()}</td>
+      <td style="color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700">S/ ${br.pagado.toLocaleString()}</td>
+      <td style="color:var(--yellow);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700">S/ ${(br.total-br.pagado).toLocaleString()}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:${br.color}"></div></div><span style="font-size:12px;color:var(--text-mid)">${pct}%</span></div></td>
+      <td style="font-size:13px;color:var(--text-mid)">${br.piezas} reels</td>
+    </tr>`;
+  });
+  table.innerHTML=`<thead><tr><th>Marca</th><th>Total Anual</th><th>Pagado</th><th>Saldo</th><th>Avance</th><th>Piezas</th></tr></thead><tbody>${rows.join('')}</tbody>`;
+}
+
+// ── VIEW TABS ──
+function switchView(viewId,btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.v-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(`tab-${viewId}`).classList.add('active'); btn.classList.add('active');
+  if(viewId==='summary') updateSummaryTable();
+}
+
+// ── ACTIVITY ──
+function toggleActivity() { document.getElementById('activityPanel').classList.toggle('visible'); }
+
+// ── EXPORT ──
+function exportSummary() {
+  let txt=`HINENI — RESUMEN AUDIOVISUAL ABRIL–DICIEMBRE 2026\nFilmmaker: ${DATA.filmmaker}\n${'─'.repeat(52)}\n\n`;
+  DATA.months.forEach(m=>{
+    txt+=`[ ${m.name} ${m.year} ]\n`;
+    m.brands.forEach(b=>{
+      txt+=`  · ${b.brand} — ${b.service}\n`;
+      b.campaigns.forEach((c,i)=>{ txt+=`    ${i+1}. ${c}\n`; });
+      txt+=`    Monto: S/ ${b.amount} | Estado: ${b.status} | Fecha pago: ${b.payDate}\n`;
+      if(b.notes) txt+=`    Nota: ${b.notes}\n`;
+    });
+    txt+='\n';
+  });
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='hineni_resumen_2026.txt'; a.click();
+  showToast('Resumen exportado ✓'); logActivity('Resumen anual exportado como .txt');
+}
+
+// ── INIT ──
+function init() {
+  document.getElementById('currentDate').textContent=
+    new Date().toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  recalcKPIs(); buildQuarterNav(); setQuarter('Q2'); updateSummaryTable();
+}
+init();
+</script>
+</body>
+</html>
